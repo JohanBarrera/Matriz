@@ -1,0 +1,196 @@
+#include <iostream>
+
+// Definimos un valor constante para el tamaño máximo de la matriz
+const int Max = 100;
+
+// Clase Matriz para representar matrices y realizar operaciones sobre ellas
+class Matriz {
+private:
+    int filas;
+    int columnas;
+    int elementos[Max][Max]; // Arreglo estático para almacenar los elementos de la matriz
+
+public:
+    // Constructor para inicializar la matriz con su tamaño
+    Matriz(int f, int c) : filas(f), columnas(c) {}
+
+    // Método para leer los elementos de la matriz desde la entrada estándar
+    void TamañoMatriz() {
+        std::cout << "Introduzca los elementos de la matriz (" << filas << "x" << columnas << "):\n";
+        for (int i = 0; i < filas; ++i) {
+            for (int j = 0; j < columnas; ++j) {
+                std::cout << "Elemento [" << i << "][" << j << "] = ";
+                std::cin >> elementos[i][j];
+            }
+        }
+    }
+
+    // Método para mostrar los elementos de la matriz
+    void mostrar() const {
+        std::cout << "La matriz es:\n";
+        for (int i = 0; i < filas; ++i) {
+            for (int j = 0; j < columnas; ++j) {
+                std::cout << elementos[i][j] << "\t";
+            }
+            std::cout << std::endl;
+        }
+    }
+
+    // Método para sumar dos matrices
+    void suma(const Matriz& A, const Matriz& B) {
+        for (int i = 0; i < A.filas; ++i) {
+            for (int j = 0; j < A.columnas; ++j) {
+                elementos[i][j] = A.elementos[i][j] + B.elementos[i][j];
+            }
+        }
+    }
+
+    // Método para restar dos matrices
+    void resta(const Matriz& A, const Matriz& B) {
+        for (int i = 0; i < A.filas; ++i) {
+            for (int j = 0; j < A.columnas; ++j) {
+                elementos[i][j] = A.elementos[i][j] - B.elementos[i][j];
+            }
+        }
+    }
+
+    // Método para multiplicar dos matrices
+    void producto(const Matriz& A, const Matriz& B) {
+        for (int i = 0; i < A.filas; ++i) {
+            for (int j = 0; j < B.columnas; ++j) {
+                elementos[i][j] = 0;
+                for (int k = 0; k < A.columnas; ++k) {
+                    elementos[i][j] += A.elementos[i][k] * B.elementos[k][j];
+                }
+            }
+        }
+    }
+
+    // Método para comprobar si las matrices son compatibles para suma y resta
+    int esCompatibleSumaYResta(const Matriz& otra) const {
+        if (filas == otra.filas && columnas == otra.columnas) {
+            return 1; // Retorna 1 si es compatible
+        }
+        return 0; // Retorna 0 si no es compatible
+    }
+
+    // Método para comprobar si las matrices son compatibles para la multiplicación
+    int esCompatibleProducto(const Matriz& otra) const {
+        if (columnas == otra.filas) {
+            return 1; // Retorna 1 si es compatible
+        }
+        return 0; // Retorna 0 si no es compatible
+    }
+};
+
+// Clase abstracta para operaciones de matrices
+class Operation {
+public:
+    virtual void calcular(const Matriz& A, const Matriz& B, Matriz& C) = 0;
+    virtual std::string nombreOperacion() const = 0;
+    virtual ~Operation() {}
+};
+
+// Clases derivadas para operaciones específicas
+class SumaMatriz : public Operation {
+public:
+    void calcular(const Matriz& A, const Matriz& B, Matriz& C) override {
+        C.suma(A, B);
+    }
+
+    std::string nombreOperacion() const override {
+        return "Suma de Matrices";
+    }
+};
+
+class RestaMatriz : public Operation {
+public:
+    void calcular(const Matriz& A, const Matriz& B, Matriz& C) override {
+        C.resta(A, B);
+    }
+
+    std::string nombreOperacion() const override {
+        return "Resta de Matrices";
+    }
+};
+
+class ProductoMatriz : public Operation {
+public:
+    void calcular(const Matriz& A, const Matriz& B, Matriz& C) override {
+        C.producto(A, B);
+    }
+
+    std::string nombreOperacion() const override {
+        return "Producto de Matrices";
+    }
+};
+
+// Clase Calculadora que gestiona las operaciones
+class Calculadora {
+private:
+    Operation* operaciones[3]; // Arreglo estático para almacenar las operaciones
+    int numOperaciones;
+
+public:
+    Calculadora() : numOperaciones(3) {
+        operaciones[0] = new SumaMatriz();
+        operaciones[1] = new RestaMatriz();
+        operaciones[2] = new ProductoMatriz();
+    }
+
+    ~Calculadora() {
+        for (int i = 0; i < numOperaciones; ++i) {
+            delete operaciones[i];
+        }
+    }
+
+    void mostrarMenu() const {
+        std::cout << "Seleccione una operación:\n";
+        for (int i = 0; i < numOperaciones; ++i) {
+            std::cout << i + 1 << ". " << operaciones[i]->nombreOperacion() << std::endl;
+        }
+    }
+
+    void ejecutarOperacion(int seleccion, const Matriz& A, const Matriz& B, Matriz& C) {
+        if (seleccion < 1 || seleccion > numOperaciones) {
+            std::cerr << "Selección no válida.\n";
+            return;
+        }
+
+        operaciones[seleccion - 1]->calcular(A, B, C);
+        std::cout << "Resultado:\n";
+        C.mostrar();
+    }
+};
+
+int main() {
+    int filasA, columnasA, filasB, columnasB;
+
+    std::cout << "Introduzca el número de filas y columnas de la matriz A:\n";
+    std::cin >> filasA >> columnasA;
+    Matriz A(filasA, columnasA);
+    A.TamañoMatriz();
+
+    std::cout << "Introduzca el número de filas y columnas de la matriz B:\n";
+    std::cin >> filasB >> columnasB;
+    Matriz B(filasB, columnasB);
+    B.TamañoMatriz();
+
+    Calculadora calc;
+    calc.mostrarMenu();
+    int seleccion;
+    std::cin >> seleccion;
+
+    if ((seleccion == 1 || seleccion == 2) && !A.esCompatibleSumaYResta(B)) {
+        std::cerr << "Las matrices no son del mismo tamaño para esta operación.\n";
+        return 1;
+    } else if (seleccion == 3 && !A.esCompatibleProducto(B)) {
+        std::cerr << "Las matrices no son compatibles para la multiplicación.\n";
+        return 1;
+    }
+
+    Matriz C(filasA, (seleccion == 3) ? columnasB : columnasA);
+    calc.ejecutarOperacion(seleccion, A, B, C);
+
+    return 0;
+}
