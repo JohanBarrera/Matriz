@@ -1,0 +1,4 @@
+1. Inversa
+2. Transpuesta
+3. Determinante
+4. Multiplicacion por escalar
