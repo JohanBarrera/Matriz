@@ -1,19 +1,15 @@
 #include <iostream>
 
-// Definimos un valor constante para el tamaño máximo de la matriz
 const int Max = 100;
 
-// Clase Matriz para representar matrices y realizar operaciones sobre ellas
 class Matriz {
-private:
+protected:
     int filas;
     int columnas;
-    int elementos[Max][Max]; // Arreglo estático para almacenar los elementos de la matriz
+    int elementos[Max][Max];
 
 public:
-    // Constructor para inicializar la matriz con su tamaño
     Matriz(int f, int c) : filas(f), columnas(c) {
-        // Inicializamos todos los elementos en 0
         for (int i = 0; i < filas; ++i) {
             for (int j = 0; j < columnas; ++j) {
                 elementos[i][j] = 0;
@@ -21,8 +17,7 @@ public:
         }
     }
 
-    // Método para leer los elementos de la matriz desde la entrada estándar
-    void TamañoMatriz() {
+    void leerElementos() {
         std::cout << "Introduzca los elementos de la matriz (" << filas << "x" << columnas << "):\n";
         for (int i = 0; i < filas; ++i) {
             for (int j = 0; j < columnas; ++j) {
@@ -32,7 +27,6 @@ public:
         }
     }
 
-    // Método para mostrar los elementos de la matriz
     void mostrar() const {
         std::cout << "La matriz es:\n";
         for (int i = 0; i < filas; ++i) {
@@ -43,92 +37,33 @@ public:
         }
     }
 
-    void suma(const Matriz& A, const Matriz& B) {
-        for (int i = 0; i < A.filas; ++i) {
-            for (int j = 0; j < A.columnas; ++j) {
-                elementos[i][j] = A.elementos[i][j] + B.elementos[i][j];
-            }
-        }
-    }
-
-    void resta(const Matriz& A, const Matriz& B) {
-        for (int i = 0; i < A.filas; ++i) {
-            for (int j = 0; j < A.columnas; ++j) {
-                elementos[i][j] = A.elementos[i][j] - B.elementos[i][j];
-            }
-        }
-    }
-
-    void producto(const Matriz& A, const Matriz& B) {
-        for (int i = 0; i < A.filas; ++i) {
-            for (int j = 0; j < B.columnas; ++j) {
-                elementos[i][j] = 0;
-                for (int k = 0; k < A.columnas; ++k) {
-                    elementos[i][j] += A.elementos[i][k] * B.elementos[k][j];
-                }
-            }
-        }
-    }
-
-    // Método para multiplicar la matriz por un escalar
-    void multiplicarEscalar(double escalar) {
-        for (int i = 0; i < filas; ++i) {
-            for (int j = 0; j < columnas; ++j) {
-                elementos[i][j] *= escalar;
-            }
-        }
-    }
-
-    // Método para calcular el determinante de la matriz (solo para matrices cuadradas)
-    int determinante() const {
-        if (filas != columnas) {
-            return 0;
-        }
-
-        if (filas == 1) {
-            return elementos[0][0];
-        }
-
-        int det = 0;
-        Matriz subMatriz(filas - 1, columnas - 1);
-
-        for (int x = 0; x < columnas; ++x) {
-            int subI = 0;
-            for (int i = 1; i < filas; ++i) {
-                int subJ = 0;
-                for (int j = 0; j < columnas; ++j) {
-                    if (j == x) continue;
-                    subMatriz.elementos[subI][subJ] = elementos[i][j];
-                    ++subJ;
-                }
-                ++subI;
-            }
-            det += (x % 2 == 0 ? 1 : -1) * elementos[0][x] * subMatriz.determinante();
-        }
-
-        return det;
-    }
-
-    // Método para comprobar si la matriz es cuadrada
     bool esCuadrada() const {
         return filas == columnas;
     }
 
-    // Método para verificar si dos matrices son compatibles para suma o resta
     bool esCompatibleSumaYResta(const Matriz& B) const {
         return filas == B.filas && columnas == B.columnas;
     }
 
-    // Método para verificar si dos matrices son compatibles para producto
     bool esCompatibleProducto(const Matriz& B) const {
         return columnas == B.filas;
     }
 
-    int getFilas() const { return filas; }
-    int getColumnas() const { return columnas; }
+    int numeroFilas() const { return filas; }
+    int numeroColumnas() const { return columnas; }
+    int numeroElemento(int i, int j) const { return elementos[i][j]; }
+    void numeroElemento(int i, int j, int valor) { elementos[i][j] = valor; }
+
+    int determinante() const {
+        if (!esCuadrada()) {
+            std::cerr << "La matriz no es cuadrada, no se puede calcular el determinante.\n";
+            return 0;
+        }
+
+        return 0;
+    }
 };
 
-// Clase abstracta para operaciones de matrices
 class Operation {
 public:
     virtual void calcular(const Matriz& A, const Matriz& B, Matriz& C) = 0;
@@ -136,12 +71,15 @@ public:
     virtual ~Operation() {}
 };
 
-// Clases derivadas para operaciones específicas
 class SumaMatriz : public Operation {
 public:
     void calcular(const Matriz& A, const Matriz& B, Matriz& C) override {
         if (A.esCompatibleSumaYResta(B)) {
-            C.suma(A, B);
+            for (int i = 0; i < A.numeroFilas(); ++i) {
+                for (int j = 0; j < A.numeroColumnas(); ++j) {
+                    C.numeroElemento(i, j, A.numeroElemento(i, j) + B.numeroElemento(i, j));
+                }
+            }
         } else {
             std::cerr << "Las matrices no son compatibles para la suma.\n";
         }
@@ -156,7 +94,11 @@ class RestaMatriz : public Operation {
 public:
     void calcular(const Matriz& A, const Matriz& B, Matriz& C) override {
         if (A.esCompatibleSumaYResta(B)) {
-            C.resta(A, B);
+            for (int i = 0; i < A.numeroFilas(); ++i) {
+                for (int j = 0; j < A.numeroColumnas(); ++j) {
+                    C.numeroElemento(i, j, A.numeroElemento(i, j) - B.numeroElemento(i, j));
+                }
+            }
         } else {
             std::cerr << "Las matrices no son compatibles para la resta.\n";
         }
@@ -171,7 +113,15 @@ class ProductoMatriz : public Operation {
 public:
     void calcular(const Matriz& A, const Matriz& B, Matriz& C) override {
         if (A.esCompatibleProducto(B)) {
-            C.producto(A, B);
+            for (int i = 0; i < A.numeroFilas(); ++i) {
+                for (int j = 0; j < B.numeroColumnas(); ++j) {
+                    int valor = 0;
+                    for (int k = 0; k < A.numeroColumnas(); ++k) {
+                        valor += A.numeroElemento(i, k) * B.numeroElemento(k, j);
+                    }
+                    C.numeroElemento(i, j, valor);
+                }
+            }
         } else {
             std::cerr << "Las matrices no son compatibles para el producto.\n";
         }
@@ -188,8 +138,12 @@ public:
         double escalar;
         std::cout << "Ingrese el valor del escalar: ";
         std::cin >> escalar;
-        C = A; // Copiamos A en C para realizar la multiplicación por escalar
-        C.multiplicarEscalar(escalar);
+        C = A;
+        for (int i = 0; i < C.numeroFilas(); ++i) {
+            for (int j = 0; j < C.numeroColumnas(); ++j) {
+                C.numeroElemento(i, j, C.numeroElemento(i, j) * escalar);
+            }
+        }
     }
 
     std::string nombreOperacion() const override {
@@ -213,10 +167,9 @@ public:
     }
 };
 
-// Clase Calculadora que gestiona las operaciones
 class Calculadora {
 private:
-    Operation* operaciones[5]; // Arreglo estático para almacenar las operaciones
+    Operation* operaciones[5];
     int numOperaciones;
 
 public:
@@ -224,8 +177,8 @@ public:
         operaciones[0] = new SumaMatriz();
         operaciones[1] = new RestaMatriz();
         operaciones[2] = new ProductoMatriz();
-        operaciones[3] = new MultiplicacionEscalar(); // Agregamos la nueva operación
-        operaciones[4] = new DeterminanteMatriz(); // Agregamos la nueva operación
+        operaciones[3] = new MultiplicacionEscalar();
+        operaciones[4] = new DeterminanteMatriz();
     }
 
     ~Calculadora() {
@@ -247,46 +200,42 @@ public:
             return;
         }
 
-        // Para determinante o multiplicación por escalar, B no es relevante
         if (seleccion == 4 || seleccion == 5) {
             operaciones[seleccion - 1]->calcular(A, B, C);
-            C.mostrar();
         } else {
-            // Para suma, resta o producto, verificamos la compatibilidad de las matrices
-            if (A.esCompatibleSumaYResta(B) || A.esCompatibleProducto(B)) {
-                operaciones[seleccion - 1]->calcular(A, B, C);
-                C.mostrar();
-            } else {
-                std::cerr << "Las matrices no son compatibles para esta operación.\n";
-            }
+            operaciones[seleccion - 1]->calcular(A, B, C);
         }
+
+        C.mostrar();
     }
 };
 
 int main() {
-    int filasA, columnasA, filasB, columnasB;
+    int filasA, columnasA, filasB = 0, columnasB = 0;
 
     std::cout << "Introduzca el número de filas y columnas de la matriz A:\n";
     std::cin >> filasA >> columnasA;
     Matriz A(filasA, columnasA);
-    A.TamañoMatriz();
+    A.leerElementos();
 
     Calculadora calc;
     calc.mostrarMenu();
     int seleccion;
     std::cin >> seleccion;
 
-    Matriz B(0, 0); // Inicialmente no se necesita B para algunas operaciones
-    Matriz C(filasA, columnasA); // Inicialmente dimensionamos C igual a A
+    Matriz B(0, 0); // Matriz vacía inicial
+    Matriz C(filasA, columnasA);
 
     if (seleccion >= 1 && seleccion <= 3) {
         std::cout << "Introduzca el número de filas y columnas de la matriz B:\n";
         std::cin >> filasB >> columnasB;
         B = Matriz(filasB, columnasB);
-        B.TamañoMatriz();
-        C = Matriz(filasA, columnasB); // Dimensionamos C para el resultado
+        B.leerElementos();
+        if (seleccion == 3) {
+            C = Matriz(filasA, columnasB);
+        }
     }
-
+    
     calc.ejecutarOperacion(seleccion, A, B, C);
 
     return 0;
