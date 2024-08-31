@@ -49,8 +49,8 @@ a la siguiente y sigue mostrando.*/
     }
     //Metodos de suma, resta, multiplicación 
     Matriz SumaMatriz(const Matriz &otra)const{ /* Las operaciones que se realicen me retornaran un objeto matriz
-    de la clase Matriz, osea los valores que retornen de aui, tambien deben ser parte de la estructura de la clase 
-    Matriz, el &otra genera una copia del onjeto con las mismas propiedades del onjeto inicial*/
+    de la clase Matriz, osea los valores que retornen de aqui, tambien deben ser parte de la estructura de la clase 
+    Matriz, el &otra genera una copia del objeto con las mismas propiedades del objeto inicial*/
     Matriz resultado(filas, columnas);/* Se instancia un objeto de la clase matriz, dandole sus valores de filas
     y columnas*/
     for (int i=0; i<filas; ++i){
@@ -96,6 +96,17 @@ Matriz ProductoMatriz(const Matriz &otra)const{
     return resultado;
 }
 
+Matriz ProductoEscalarMatriz(int escalar) const {
+    Matriz resultado(filas, columnas); // Se Crea una nueva matriz para almacenar el resultado
+    for (int i = 0; i < filas; ++i) {
+        for (int j = 0; j < columnas; ++j) {
+            resultado.matriz[i][j] = matriz[i][j] * escalar; // Multiplicar cada elemento por el escalar
+        }
+    }
+    return resultado; // Devolver la matriz resultante
+}
+
+
 
 
     int getFilas() const{return filas;} /*Se utiliza para poder utilizar los valores
@@ -108,51 +119,89 @@ Matriz ProductoMatriz(const Matriz &otra)const{
 
 
 
-class Calculadora{
-    public:
-    void ejecutar(){
+class Calculadora {
+public:
+    void ejecutar() {
         int filasA, columnasA, filasB, columnasB;
-
-        std::cout<<"Introduzca el numero de filas y columnas de la matriz A:"<<std::endl;
-        std::cin>> filasA, columnasA;
+        int escalar;
+        std::cout << "Bienvenido a la calculadora de matrices, Por favor siga las instrucciones." << std::endl;
+        std::cout << "Introduzca el número de filas y columnas de la matriz A:" << std::endl;
+        std::cin >> filasA >> columnasA;
         Matriz A(filasA, columnasA);
-
         A.leerMatriz();
 
-        std::cout<<"Introduzca el numero de filas y columnas de la matriz B:"<<std::endl;
-        std::cin>> filasB, columnasB;
+        std::cout << "Introduzca el número de filas y columnas de la matriz B:" << std::endl;
+        std::cin >> filasB >> columnasB;
         Matriz B(filasB, columnasB);
-
         B.leerMatriz();
+        
+        int opcion;
+        do {
+            opcion = mostrarMenu();
+            switch (opcion) {
+                case 1: {
+                    if (filasA == filasB && columnasA == columnasB) {
+                        Matriz suma = A.SumaMatriz(B);
+                        std::cout << "La suma es: \n";
+                        suma.ImprimirMatriz();
+                    } else {
+                        std::cout << "Las matrices no se pueden sumar" << std::endl;
+                    }
+                }
+                break;
 
-        if(filasA==filasB && columnasA==columnasB){
-            Matriz SumaMatriz1=A.SumaMatriz(B);
-            std::cout<<"La suma es: \n";
-            SumaMatriz1.ImprimirMatriz();
+                case 2: {
+                    if (filasA == filasB && columnasA == columnasB) {
+                        Matriz resta = A.RestaMatriz(B);
+                        std::cout << "La resta es: \n";
+                        resta.ImprimirMatriz();
+                    } else {
+                        std::cout << "Las matrices no se pueden restar" << std::endl;
+                    }
+                }
+                break;
 
-            Matriz RestaMatriz1=A.RestaMatriz(B);
-            std::cout<<"La resta es: \n";
-            RestaMatriz1.ImprimirMatriz();
+                case 3: {
+                    if (columnasA == filasB) {
+                        Matriz producto = A.ProductoMatriz(B);
+                        std::cout << "El producto es: \n";
+                        producto.ImprimirMatriz();
+                    } else {
+                        std::cout << "Las matrices no se pueden multiplicar" << std::endl;
+                    }
+                }
+                break;
 
-        }else{
-            std::cout<<"Las matrices no se pueden sumar"<<std::endl;
-        }
-    
+                case 4: {
+                    std::cout << "Introduzca el valor del escalar:" << std::endl;
+                    std::cin >> escalar;
+                    Matriz resultado = A.ProductoEscalarMatriz(escalar);
+                    std::cout << "El resultado de la multiplicación por el escalar es: " << std::endl;
+                    resultado.ImprimirMatriz();
+                }
+                break;
 
-    // Producto
-    if(columnasA==filasB){
-        Matriz resultado=A.ProductoMatriz(B);
-        std::cout<<"El producto es: \n";
-        resultado.ImprimirMatriz();
+                case 5:
+                    std::cout << "Gracias por usarme." << std::endl;
+                    break;
+
+                default:
+                    std::cout << "Opción no válida" << std::endl;
+                    break;
+            }
+        } while (opcion != 5);
     }
-    else{
-        std::cout<<"error \n";
-    }
-    }
 
+private:
+    int mostrarMenu() {
+        int opc;
+        std::cout << "Por favor escoja la operación que desea realizar." << std::endl;
+        std::cout << "1. Suma\n2. Resta\n3. Multiplicación\n4. Multiplicación por escalar\n5. Salir" << std::endl;
+        std::cin >> opc;
+        return opc;
+    }
 };
-
-int main(){
+int main() {
     Calculadora MiCalculadora;
     MiCalculadora.ejecutar();
     return 0;
