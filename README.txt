@@ -1,1 +1,2 @@
-Falta la inversa y falta la adjunta (para asi poder hacer la inversa xd)
+Falta la inversa, transpuesta y falta la adjunta (para asi poder hacer la inversa xd), aunque siento que es mucho, con solo la transpuesta y adjunta deberia ser suficiente
+Lo que esta en poo matrices es solo lo de la clase y con el producto por escalar que hizo German, en calculadora es que yo subi lo que estaba en poo matrices mas mi parte del determinante. entonces pa que se tome de calculadora que es la mas actualizada y no de poo matrices que solo tiene el producto por escalar
